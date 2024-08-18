@@ -1,49 +1,79 @@
 const connection = require('../config/db');
+const util = require('util');
 
 
-exports.createPlace = (req, res) => {
-    const { name, address, parking_lot, type_of_place, areas, bus_lines } = req.body;
+const query = util.promisify(connection.query).bind(connection);
 
-    connection.query('INSERT INTO Places (name, address, parking_lot, type_of_place, areas, bus_lines) VALUES (?, ?, ?, ?, ?, ?)', 
-    [name, address, parking_lot, type_of_place, areas, bus_lines], 
-    (err, results) => {
-        if (err) return res.status(500).send('Error creating place.');
+exports.createPlace = async (req, res) => {
+    try {
+        const { name, address, parking_lot, type_of_place, areas, bus_lines } = req.body;
+
+        if (!name || !type_of_place) {
+            return res.status(400).send('Missing required fields.');
+        }
+
+        await query('INSERT INTO Places (name, address, parking_lot, type_of_place, areas, bus_lines) VALUES (?, ?, ?, ?, ?, ?)', 
+        [name, address, parking_lot, type_of_place, areas, bus_lines]);
+
         res.status(201).send('Place created successfully!');
-    });
+    } catch (err) {
+        console.error('Error creating place:', err);
+        res.status(500).send('Internal Server Error');
+    }
 };
 
-
-exports.getAllPlaces = (req, res) => {
-    connection.query('SELECT * FROM Places', (err, results) => {
-        if (err) return res.status(500).send('Error retrieving places.');
-        res.json(results);
-    });
+exports.getAllPlaces = async (req, res) => {
+    try {
+        const places = await query('SELECT * FROM Places');
+        res.json(places);
+    } catch (err) {
+        console.error('Error retrieving places:', err);
+        res.status(500).send('Internal Server Error');
+    }
 };
 
+exports.getPlaceById = async (req, res) => {
+    try {
+        const placeId = req.params.id;
+        const results = await query('SELECT * FROM Places WHERE id = ?', [placeId]);
 
-exports.getPlaceById = (req, res) => {
-    const placeId = req.params.id;
-    connection.query('SELECT * FROM Places WHERE id = ?', [placeId], (err, results) => {
-        if (err || results.length === 0) return res.status(404).send('Place not found.');
+        if (results.length === 0) return res.status(404).send('Place not found.');
+
         res.json(results[0]);
-    });
+    } catch (err) {
+        console.error('Error retrieving place:', err);
+        res.status(500).send('Internal Server Error');
+    }
 };
 
+exports.updatePlace = async (req, res) => {
+    try {
+        const placeId = req.params.id;
+        const updatedPlace = req.body;
 
-exports.updatePlace = (req, res) => {
-    const placeId = req.params.id;
-    const updatedPlace = req.body;
-    connection.query('UPDATE Places SET ? WHERE id = ?', [updatedPlace, placeId], (err, results) => {
-        if (err) return res.status(500).send('Error updating place.');
+        if (!updatedPlace) return res.status(400).send('No data provided for update.');
+
+        const results = await query('UPDATE Places SET ? WHERE id = ?', [updatedPlace, placeId]);
+
+        if (results.affectedRows === 0) return res.status(404).send('Place not found.');
+
         res.send('Place updated successfully!');
-    });
+    } catch (err) {
+        console.error('Error updating place:', err);
+        res.status(500).send('Internal Server Error');
+    }
 };
 
+exports.deletePlace = async (req, res) => {
+    try {
+        const placeId = req.params.id;
+        const results = await query('DELETE FROM Places WHERE id = ?', [placeId]);
 
-exports.deletePlace = (req, res) => {
-    const placeId = req.params.id;
-    connection.query('DELETE FROM Places WHERE id = ?', [placeId], (err, results) => {
-        if (err) return res.status(500).send('Error deleting place.');
+        if (results.affectedRows === 0) return res.status(404).send('Place not found.');
+
         res.send('Place deleted successfully!');
-    });
+    } catch (err) {
+        console.error('Error deleting place:', err);
+        res.status(500).send('Internal Server Error');
+    }
 };
