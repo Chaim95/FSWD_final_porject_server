@@ -10,7 +10,7 @@ exports.createToken = async (req, res) => {
         const { user_id } = req.body;
 
         if (!user_id) {
-            return res.status(400).send('Missing required fields.');
+            return res.status(400).json({ error: 'Missing required fields.' });
         }
 
         const token = crypto.randomBytes(32).toString('hex');
@@ -19,10 +19,10 @@ exports.createToken = async (req, res) => {
         await query('INSERT INTO Password_Tokens (user_id, token, expiration) VALUES (?, ?, ?)', 
         [user_id, token, expiration]);
 
-        res.status(201).send({ token });
+        res.status(201).json({ token });
     } catch (err) {
         console.error('Error creating password reset token:', err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -31,17 +31,17 @@ exports.verifyToken = async (req, res) => {
         const { token } = req.body;
 
         if (!token) {
-            return res.status(400).send('Missing token.');
+            return res.status(400).json({ error: 'Missing token.' });
         }
 
         const results = await query('SELECT * FROM Password_Tokens WHERE token = ? AND expiration > NOW()', [token]);
 
-        if (results.length === 0) return res.status(400).send('Invalid or expired token.');
+        if (results.length === 0) return res.status(400).json({ error: 'Invalid or expired token.' });
 
-        res.status(200).send('Token is valid.');
+        res.status(200).json({ message: 'Token is valid.' });
     } catch (err) {
         console.error('Error verifying token:', err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -50,16 +50,16 @@ exports.deleteToken = async (req, res) => {
         const { token } = req.body;
 
         if (!token) {
-            return res.status(400).send('Missing token.');
+            return res.status(400).json({ error: 'Missing token.' });
         }
 
         const results = await query('DELETE FROM Password_Tokens WHERE token = ?', [token]);
 
-        if (results.affectedRows === 0) return res.status(404).send('Token not found.');
+        if (results.affectedRows === 0) return res.status(404).json({ error: 'Token not found.' });
 
-        res.send('Token deleted successfully!');
+        res.status(200).json({ message: 'Token deleted successfully!' });
     } catch (err) {
         console.error('Error deleting token:', err);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
