@@ -9,6 +9,7 @@ router.post('/', verifyToken, isAdmin, showController.createShow);
 
 router.get('/', verifyToken, showController.getAllShows);
 
+router.get('/shows', showsController.getAllShowsPaging);
 
 router.get('/:id', verifyToken, showController.getShowById);
 

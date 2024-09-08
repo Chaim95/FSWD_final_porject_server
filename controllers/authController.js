@@ -20,9 +20,15 @@ exports.register = async (req, res) => {
         [email, first_name, last_name, phone_number, type_of_user, hashedPassword]);
 
         const user = await query('SELECT * FROM Users WHERE email = ?', [email]);
-        const token = jwt.sign({ id: user[0].id, type_of_user: user[0].type_of_user }, process.env.JWT_SECRET, {
-            expiresIn: 86400 // 1 day
-        });
+        const token = jwt.sign(
+            { 
+                id: user[0].id, 
+                type_of_user: user[0].type_of_user, 
+                name: `${user[0].first_name} ${user[0].last_name}`, 
+                email: user[0].email 
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1d' });
 
         res.status(201).json({ auth: true, token, message: 'User registered successfully!' });
     } catch (err) {
@@ -43,9 +49,15 @@ exports.login = async (req, res) => {
 
         if (!passwordIsValid) return res.status(401).json({ error: 'Invalid password.' });
 
-        const token = jwt.sign({ id: user.id, type_of_user: user.type_of_user }, process.env.JWT_SECRET, {
-            expiresIn: 86400 
-        });
+        const token = jwt.sign(
+            { 
+                id: user[0].id, 
+                type_of_user: user[0].type_of_user, 
+                name: `${user[0].first_name} ${user[0].last_name}`, 
+                email: user[0].email 
+            }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1d' });
 
         res.status(200).json({ auth: true, token });
     } catch (err) {

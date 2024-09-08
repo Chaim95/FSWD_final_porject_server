@@ -31,6 +31,31 @@ exports.getAllShows = async (req, res) => {
     }
 };
 
+
+exports.getAllShowsPaging = async (req, res) => {
+    try {
+        let page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+
+        let offset = (page - 1) * limit;
+
+        const shows = await query('SELECT * FROM Shows LIMIT ? OFFSET ?', [limit, offset]);
+
+        const totalShows = await query('SELECT COUNT(*) as count FROM Shows');
+        const totalPages = Math.ceil(totalShows[0].count / limit);
+
+        res.json({
+            shows,
+            currentPage: page,
+            totalPages: totalPages
+        });
+    } catch (err) {
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+
+
 exports.getShowById = async (req, res) => {
     try {
         const showId = req.params.id;
