@@ -18,7 +18,7 @@ async function verifyToken(req, res, next) {
         const decoded = await jwt.verify(token, process.env.JWT_SECRET); 
 
         req.userId = decoded.id;  
-        req.userType = decoded.userType;  
+        req.userType = decoded.type_of_user;  
         next(); 
     } catch (err) {
         res.status(500).json({ error: 'Failed to authenticate token.' });  
@@ -26,6 +26,7 @@ async function verifyToken(req, res, next) {
 }
 
 function isAdmin(req, res, next) {
+    console.log(req.userType);
     if (req.userType !== 'admin') {
         return res.status(403).json({ error: 'Requires admin role.' });  
     }

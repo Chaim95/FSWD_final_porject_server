@@ -21,6 +21,63 @@ exports.createTicket = async (req, res) => {
     }
 };
 
+
+
+// exports.getUserTickets = async (req, res) => {
+//     try {
+//         const userId = req.userId; 
+//         const tickets = await query(`
+//             SELECT t.*, s.name AS show_name, s.date
+//             FROM Tickets t
+//             JOIN Shows s ON t.show_id = s.id
+//             WHERE t.user_id = ?
+//         `, [userId]);
+
+//         res.status(200).json({ user: { id: userId, name: req.userName, email: req.userEmail }, tickets });
+//     } catch (err) {
+//         console.error('Error retrieving user tickets:', err);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
+
+exports.getUserTickets = async (req, res) => {
+    try {
+        const userId = req.userId; 
+        console.log("***getUserTickets***");
+        console.log(userId);
+
+        const userResults = await query('SELECT id, first_name, last_name, email FROM Users WHERE id = ?', [userId]);
+        console.log(userResults);
+
+        if (userResults.length === 0) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const user = {
+            ...userResults[0],
+            name: `${userResults[0].first_name} ${userResults[0].last_name}`
+        };
+        console.log(user);
+
+        const tickets = await query(`
+            SELECT t.*, s.name AS show_name, s.date
+            FROM Tickets t
+            JOIN Shows s ON t.show_id = s.id
+            WHERE t.user_id = ?
+        `, [userId]);
+        console.log(tickets);
+
+        res.status(200).json({ user, tickets });
+    } catch (err) {
+        console.error('Error retrieving user tickets:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+
+
 exports.getAllTickets = async (req, res) => {
     try {
         const tickets = await query('SELECT * FROM Tickets');

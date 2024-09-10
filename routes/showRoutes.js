@@ -4,15 +4,18 @@ const showController = require('../controllers/showController');
 const { verifyToken, isAdmin } = require('../middleware/auth');
 
 
+//router.get('/shows', showController.getAllShowsPaging);
+
 router.post('/', verifyToken, isAdmin, showController.createShow);
 
+router.get('/', showController.getAllShowsPaging);
 
-router.get('/', verifyToken, showController.getAllShows);
+router.get('/manager', verifyToken, isAdmin, showController.getShowsByManager);
 
-router.get('/shows', showsController.getAllShowsPaging);
+//router.get('/:id', verifyToken, showController.getShowById);
 
-router.get('/:id', verifyToken, showController.getShowById);
 
+router.get('/:id', showController.getShowById);
 
 router.put('/:id', verifyToken, isAdmin, showController.updateShow);
 

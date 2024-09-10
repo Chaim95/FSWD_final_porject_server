@@ -7,6 +7,7 @@ const query = util.promisify(connection.query).bind(connection);
 
 exports.register = async (req, res) => {
     try {
+        console.log(req.body);
         const { email, password, first_name, last_name, phone_number, type_of_user } = req.body;
 
         const existingUser = await query('SELECT * FROM Users WHERE email = ?', [email]);
@@ -20,6 +21,7 @@ exports.register = async (req, res) => {
         [email, first_name, last_name, phone_number, type_of_user, hashedPassword]);
 
         const user = await query('SELECT * FROM Users WHERE email = ?', [email]);
+        console.log(user[0]);
         const token = jwt.sign(
             { 
                 id: user[0].id, 
@@ -51,10 +53,10 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign(
             { 
-                id: user[0].id, 
-                type_of_user: user[0].type_of_user, 
-                name: `${user[0].first_name} ${user[0].last_name}`, 
-                email: user[0].email 
+                id: user.id, 
+                type_of_user: user.type_of_user, 
+                name: `${user.first_name} ${user.last_name}`, 
+                email: user.email 
             }, 
             process.env.JWT_SECRET, 
             { expiresIn: '1d' });

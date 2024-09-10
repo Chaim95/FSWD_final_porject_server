@@ -10,6 +10,9 @@ router.post('/', verifyToken, ticketController.createTicket);
 router.get('/', verifyToken, ticketController.getAllTickets);
 
 
+router.get('/user', verifyToken, ticketController.getUserTickets);
+
+
 router.get('/:id', verifyToken, ticketController.getTicketById);
 
 

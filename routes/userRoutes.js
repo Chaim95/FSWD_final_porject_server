@@ -10,6 +10,9 @@ router.post('/', verifyToken, isAdmin, userController.createUser);
 router.get('/', verifyToken, isAdmin, userController.getAllUsers);
 
 
+router.get('/user-type', verifyToken, userController.getUserType);
+
+
 router.get('/:id', verifyToken, isAdmin, userController.getUserById);
 
 

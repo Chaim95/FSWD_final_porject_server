@@ -39,9 +39,28 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+// exports.getUserById = async (req, res) => {
+//     try {
+//         const userId = req.params.id;
+//         const results = await query('SELECT * FROM Users WHERE id = ?', [userId]);
+
+//         if (results.length === 0) return res.status(404).json({ error: 'User not found.' });
+
+//         res.status(200).json(results[0]);
+//     } catch (err) {
+//         console.error('Error retrieving user:', err);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
 exports.getUserById = async (req, res) => {
     try {
         const userId = req.params.id;
+
+        if (req.userType !== 'admin' && req.userId !== parseInt(userId, 10)) {
+            return res.status(403).json({ error: 'Unauthorized access.' });
+        }
+
         const results = await query('SELECT * FROM Users WHERE id = ?', [userId]);
 
         if (results.length === 0) return res.status(404).json({ error: 'User not found.' });
@@ -52,6 +71,14 @@ exports.getUserById = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+
+
+exports.getUserType = (req, res) => {
+    const userType = req.userType;
+    res.status(200).json({ userType });
+};
+
 
 exports.updateUser = async (req, res) => {
     try {
