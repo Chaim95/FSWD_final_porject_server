@@ -8,9 +8,10 @@ router.post('/', verifyToken, ticketController.createTicket);
 
 
 router.get('/', verifyToken, ticketController.getAllTickets);
+router.get('/:showId', verifyToken, ticketController.getAvailableTickets);
 
 
-router.get('/user', verifyToken, ticketController.getUserTickets);
+router.get('/info/user', verifyToken, ticketController.getUserTickets);
 
 
 router.get('/:id', verifyToken, ticketController.getTicketById);

@@ -6,14 +6,14 @@ const query = util.promisify(connection.query).bind(connection);
 
 exports.createPlace = async (req, res) => {
     try {
-        const { name, address, parking_lot, type_of_place, areas, bus_lines } = req.body;
+        const { name, address, parking_lot, type_of_place, areas} = req.body;
 
         if (!name || !type_of_place) {
             return res.status(400).json({ error: 'Missing required fields.' });
         }
 
         await query('INSERT INTO Places (name, address, parking_lot, type_of_place, areas, bus_lines) VALUES (?, ?, ?, ?, ?, ?)', 
-        [name, address, parking_lot, type_of_place, areas, bus_lines]);
+        [name, address, parking_lot, type_of_place, areas, '']);
 
         res.status(201).json({ message: 'Place created successfully!' });
     } catch (err) {

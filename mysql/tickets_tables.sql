@@ -5,6 +5,7 @@ CREATE TABLE Users (
     last_name VARCHAR(30) NOT NULL,
     phone_number VARCHAR(15),
     type_of_user ENUM('regular', 'show_admin', 'admin') NOT NULL,
+    balance DECIMAL(10, 2) DEFAULT 500.0,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
