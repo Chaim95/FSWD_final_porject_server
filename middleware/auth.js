@@ -33,4 +33,13 @@ function isAdmin(req, res, next) {
     next();
 }
 
-module.exports = { verifyToken, isAdmin };
+function isShowAdminOrAdmin(req, res, next) {
+    console.log(req.userType);
+    if (req.userType === 'regular') {
+        return res.status(403).json({ error: 'Requires show admin/admin role.' });  
+    }
+    next();
+}
+
+
+module.exports = { verifyToken, isAdmin , isShowAdminOrAdmin};

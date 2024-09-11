@@ -7,15 +7,15 @@ const query = util.promisify(connection.query).bind(connection);
 exports.createShow = async (req, res) => {
     try {
         console.log(req.body);
-        const { date, hours_start, hours_finish, place_id, prices, name, artist, poster_url  } = req.body;
+        const { date, hours_start, hours_finish, place_id, prices, name, artist, poster_url, seats_count} = req.body;
         const manager_id = req.userId;
         console.log(req);
-        if (!date || !hours_start || !hours_finish || !place_id || !manager_id || !name || !artist || !poster_url ) {
+        if (!date || !hours_start || !hours_finish || !place_id || !manager_id || !name || !artist || !poster_url|| !seats_count ) {
             return res.status(400).json({ error: 'Missing required fields.' });
         }
-
-        await query('INSERT INTO Shows (date, hours_start, hours_finish, place_id, manager_id, prices, name, artist, poster_url ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-        [date, hours_start, hours_finish, place_id, manager_id, prices, name, artist, poster_url ]);
+        console.log(poster_url);
+        await query('INSERT INTO Shows (date, hours_start, hours_finish, place_id, manager_id, prices, name, artist, seats_count, poster_url ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)', 
+        [date, hours_start, hours_finish, place_id, manager_id, prices, name, artist, seats_count, poster_url ]);
 
         res.status(201).json({ message: 'Show created successfully!' });
     } catch (err) {
