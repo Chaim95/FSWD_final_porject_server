@@ -7,15 +7,15 @@ const query = util.promisify(connection.query).bind(connection);
 exports.createShow = async (req, res) => {
     try {
         console.log(req.body);
-        const { date, hours_start, hours_finish, place_id, prices, name, artist, poster_url, seats_count} = req.body;
+        const { date, hours_start, hours_finish, place_id, prices, name, artist, poster_url, seats_count } = req.body;
         const manager_id = req.userId;
         console.log(req);
-        if (!date || !hours_start || !hours_finish || !place_id || !manager_id || !name || !artist || !poster_url|| !seats_count ) {
+        if (!date || !hours_start || !hours_finish || !place_id || !manager_id || !name || !artist || !poster_url || !seats_count) {
             return res.status(400).json({ error: 'Missing required fields.' });
         }
         console.log(poster_url);
-        await query('INSERT INTO Shows (date, hours_start, hours_finish, place_id, manager_id, prices, name, artist, seats_count, poster_url ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)', 
-        [date, hours_start, hours_finish, place_id, manager_id, prices, name, artist, seats_count, poster_url ]);
+        await query('INSERT INTO Shows (date, hours_start, hours_finish, place_id, manager_id, prices, name, artist, seats_count, poster_url ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)',
+            [date, hours_start, hours_finish, place_id, manager_id, prices, name, artist, seats_count, poster_url]);
 
         res.status(201).json({ message: 'Show created successfully!' });
     } catch (err) {
@@ -148,8 +148,23 @@ exports.getShowsByManager = async (req, res) => {
         const managerId = req.userId;
         console.log(managerId);
         const shows = await query('SELECT * FROM Shows WHERE manager_id = ?', [managerId]);
-        console.log(shows[0]);
-        res.status(200).json(shows);
+        // console.log(shows[0]);
+        let showsForRes = shows
+        for (let index = 0; index < shows.length; index++) {
+            try {
+                const show = shows[index];
+                console.log(show);
+                const seats_sold = await query('SELECT Count(*) FROM Tickets WHERE show_id = ?', [show['id']]);
+                const showSeatsSold = seats_sold[0]['Count(*)'];
+                showsForRes[index]['seats_sold'] = showSeatsSold;
+
+            } catch (error) {
+                console.log(error)
+            }
+
+        }
+
+        res.status(200).json(showsForRes);
     } catch (err) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
